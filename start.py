@@ -7,7 +7,7 @@ import orderlistener
 
 #Open login.py and put in your username and password
 username = "s0lar"
-password = "notused" #password o caralho
+#password = "notused"
 
 plugins = DefaultPlugins
 plugins.append(OrderListener)

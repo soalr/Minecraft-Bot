@@ -13,6 +13,10 @@ import time
 
 import sys
 
+from bot import Bot
+Bot = Bot()
+
+
 class OrderListener:
 	def __init__(self, ploader, settings):
 		self.timers = ploader.requires('Timers')
@@ -23,7 +27,7 @@ class OrderListener:
 		ploader.reg_event_handler(
 			'PLAY<Chat Message', self.handle_chat_message
 		)
-		ploader.reg_event_handler("PLAY<Entity Relative Move",self.print_packets)
+		ploader.reg_event_handler("PLAY<Entity Properties",Bot.updatePlayers)
 
 	def handle_chat_message(self, name, packet):
 		self.walk(0)
@@ -59,8 +63,8 @@ class OrderListener:
 				walk(args[0]);
 		elif command == 'attack':
 			self.net.push_packet('PLAY>Use Entity', {'target':84204033,'action': 1})
-		elif command == 'request':
-			self.net.push_packet('HANDSHAKE>','Request')
+		elif command == 'listplayers':
+			Bot.listPlayers()
 		elif command == 'login':
 			self.net.push_packet('PLAY>Chat Message', {'message': '/login gabi'})
 		elif command == 'date':
