@@ -13,8 +13,8 @@ import time
 
 import sys
 
-from bot import Bot
-Bot = Bot()
+
+
 
 
 class OrderListener:
@@ -27,13 +27,17 @@ class OrderListener:
 		ploader.reg_event_handler(
 			'PLAY<Chat Message', self.handle_chat_message
 		)
-		ploader.reg_event_handler("PLAY<Entity Properties",Bot.updatePlayers)
+		#ploader.reg_event_handler("PLAY<Entity Properties",Bot.updatePlayers)
+		ploader.reg_event_handler("PLAY<Entity Relative Move",self.print_packets)
+
+		ploader.reg_event_handler("PLAY<Player List Item",self.print_packets)
+
+
 
 	def handle_chat_message(self, name, packet):
-		self.walk(0)
 		chat_data = packet.data['json_data']
 		message = self.parse_chat(chat_data)
-		print('Chat:', message)
+	#	print('Chat:', message)
 		try:
                         name_pos = message.find(' ')
 			if name_pos == -1:
@@ -71,6 +75,8 @@ class OrderListener:
 			self.net.push_packet('PLAY>Chat Message', {'message': 'Current Date: ' + str(datetime.datetime.now())})
 		elif command == 'cmd':
 			self.net.push_packet('PLAY>Chat Message', {'message': '/' + ' '.join(args)})
+		elif command == 'miley':
+			self.miley()
 		elif command == 'slot':
 			if len(args) == 1 and (int(args[0]) >= 0 and int(args[0]) <= 8):
 				self.net.push_packet('PLAY>Held Item Change', {'slot': int(args[0])})
@@ -123,7 +129,7 @@ class OrderListener:
                 	self.net.push_packet('PLAY>Player Block Placement', block_data)
                 	posicao.x +=1;
                 	self.net.push_packet('PLAY>Player Position', {'x': posicao.x ,'y': posicao.y,'z': posicao.z,'on_ground':1})
-                	
+
 
 	def parse_chat(self, chat_data):
 		message = ''
@@ -146,9 +152,19 @@ class OrderListener:
 
 	def say(self,msg):
 		self.net.push_packet('PLAY>Chat Message', {'message': + msg})
-		
+
 	def print_packets(self, name, packet):
-		print(packet)
+		print(packet.data)
+
 	def walk(self,args):
 		angulo = args
 		self.physics.walk( int(angulo))
+
+	def miley (self):
+            global crouch
+            crouch = 1
+            self.net.push_packet('PLAY>Entity Action', {'eid': self.clinfo.eid, 'action':crouch,'jump_boost':0})
+            if crouch==0:
+       	        crouch=1
+            else:
+   		        crouch=0
